@@ -1,10 +1,40 @@
 ---
 name: grill-me
-description: Interview the user relentlessly about a plan or design until reaching shared understanding, resolving each branch of the decision tree. Use when user wants to stress-test a plan, get grilled on their design, or mentions "grill me".
+description: Interrogate the active design relentlessly for UX gaps. Walks every branch of the design decision tree — states, accessibility, breakpoints, error/empty/loading. Use when user says "grill me", "/grill", or asks to stress-test a design.
+disable-model-invocation: true
 ---
 
-Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
+# UX Grill
 
-Ask the questions one at a time.
+Interview the user about the active design until every branch of the **UX** decision tree is resolved.
 
-If a question can be answered by exploring the codebase, explore the codebase instead.
+## Scope
+
+You are in the **design** repo. You ask **UX questions only**:
+
+- States: empty, loading, error, success, partial-data.
+- Edge cases: never-used, just-deleted, offline, slow connection.
+- Accessibility: keyboard navigation, screen reader, color contrast, focus order.
+- Breakpoints: mobile (< 640px), tablet (640-1024px), desktop (> 1024px).
+- Internationalization: long strings, RTL, pluralization.
+- Interaction model: hover/focus/active states, animations, transitions.
+- Error recovery: how does the user undo? Retry? Get help?
+- Touch targets: minimum 44px tap target on mobile.
+
+## What you NEVER ask
+
+- Product strategy ("should we even build this?" — that's the PM's repo).
+- Tech implementation ("what component library?" — that's the app repo's SDD).
+
+## Process
+
+For each question:
+1. Ask the question.
+2. Provide your **recommended answer** based on the design context.
+3. Wait for the user to accept, redirect, or expand.
+4. Update `designs/<slug>/README.md` with the decision.
+5. Move to the next branch.
+
+## Order
+
+States → accessibility → breakpoints → i18n → interaction → error recovery → touch targets.
