@@ -1,0 +1,6 @@
+.DS_Store
+.claude/local/
+.claude/session/
+
+# Pencil temp files
+*.pen.bak
