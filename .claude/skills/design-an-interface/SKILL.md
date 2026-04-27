@@ -1,94 +1,49 @@
 ---
 name: design-an-interface
-description: Generate multiple radically different interface designs for a module using parallel sub-agents. Use when user wants to design an API, explore interface options, compare module shapes, or mentions "design it twice".
+description: Generate multiple radically different UI variants for the active feature. Uses Pencil MCP if a .pen file is the source-of-truth; falls back to written exploration for Figma users. Dispatches parallel sub-agents per variant. Use when user says "/explore-design".
 ---
 
-# Design an Interface
+# Explore Design Variants
 
-Based on "Design It Twice" from "A Philosophy of Software Design": your first idea is unlikely to be the best. Generate multiple radically different designs, then compare.
+You are in the **design** repo. The user has just picked up a design seed issue and wants to explore UI variants for the feature.
 
-## Workflow
+## Detect the tool
 
-### 1. Gather Requirements
+Check `designs/<slug>/`:
+- If `source.pen` exists → **Pencil mode** (use `mcp__pencil__*` tools).
+- If `figma.url` exists → **Figma mode** (written exploration only — designer translates to Figma manually).
+- If neither → ask the user: "Pencil or Figma for this feature?"
 
-Before designing, understand:
+## Pencil mode
 
-- [ ] What problem does this module solve?
-- [ ] Who are the callers? (other modules, external users, tests)
-- [ ] What are the key operations?
-- [ ] Any constraints? (performance, compatibility, existing patterns)
-- [ ] What should be hidden inside vs exposed?
+1. Read the seed issue body (PRD context + acceptance criteria).
+2. Open the `.pen` file via `mcp__pencil__open_document`.
+3. Dispatch **3 parallel sub-agents** via the Agent tool, each generating a radically different variant:
+   - Variant 1: minimal / utilitarian
+   - Variant 2: visual / expressive
+   - Variant 3: dense / power-user
+4. Each sub-agent uses `mcp__pencil__batch_design` to lay out a frame in the .pen file.
+5. After all 3 finish, write `designs/<slug>/README.md` with rationale for each variant + tradeoffs.
+6. Show the user the three frame names and ask which to refine.
 
-Ask: "What does this module need to do? Who will use it?"
+## Figma mode
 
-### 2. Generate Designs (Parallel Sub-Agents)
+1. Read the seed issue body.
+2. Generate **3 written variants** in `designs/<slug>/README.md`:
+   - Each variant: layout description, primary interactions, tradeoffs.
+3. Tell the user: "Translate variant <N> into Figma. Update `figma.url` when done."
 
-Spawn 3+ sub-agents simultaneously using Task tool. Each must produce a **radically different** approach.
+## Output structure
 
 ```
-Prompt template for each sub-agent:
-
-Design an interface for: [module description]
-
-Requirements: [gathered requirements]
-
-Constraints for this design: [assign a different constraint to each agent]
-- Agent 1: "Minimize method count - aim for 1-3 methods max"
-- Agent 2: "Maximize flexibility - support many use cases"
-- Agent 3: "Optimize for the most common case"
-- Agent 4: "Take inspiration from [specific paradigm/library]"
-
-Output format:
-1. Interface signature (types/methods)
-2. Usage example (how caller uses it)
-3. What this design hides internally
-4. Trade-offs of this approach
+designs/<slug>/
+├── README.md          (this file — rationale, decisions, a11y notes)
+├── source.pen         (Pencil mode — modified by you)
+└── figma.url          (Figma mode — written by designer)
 ```
 
-### 3. Present Designs
+## What you NEVER do
 
-Show each design with:
-
-1. **Interface signature** - types, methods, params
-2. **Usage examples** - how callers actually use it in practice
-3. **What it hides** - complexity kept internal
-
-Present designs sequentially so user can absorb each approach before comparison.
-
-### 4. Compare Designs
-
-After showing all designs, compare them on:
-
-- **Interface simplicity**: fewer methods, simpler params
-- **General-purpose vs specialized**: flexibility vs focus
-- **Implementation efficiency**: does shape allow efficient internals?
-- **Depth**: small interface hiding significant complexity (good) vs large interface with thin implementation (bad)
-- **Ease of correct use** vs **ease of misuse**
-
-Discuss trade-offs in prose, not tables. Highlight where designs diverge most.
-
-### 5. Synthesize
-
-Often the best design combines insights from multiple options. Ask:
-
-- "Which design best fits your primary use case?"
-- "Any elements from other designs worth incorporating?"
-
-## Evaluation Criteria
-
-From "A Philosophy of Software Design":
-
-**Interface simplicity**: Fewer methods, simpler params = easier to learn and use correctly.
-
-**General-purpose**: Can handle future use cases without changes. But beware over-generalization.
-
-**Implementation efficiency**: Does interface shape allow efficient implementation? Or force awkward internals?
-
-**Depth**: Small interface hiding significant complexity = deep module (good). Large interface with thin implementation = shallow module (avoid).
-
-## Anti-Patterns
-
-- Don't let sub-agents produce similar designs - enforce radical difference
-- Don't skip comparison - the value is in contrast
-- Don't implement - this is purely about interface shape
-- Don't evaluate based on implementation effort
+- Generate variants without reading the PRD context first.
+- Skip the README.md write — rationale is as important as the visuals.
+- Make product strategy decisions ("should we even include this feature?").
