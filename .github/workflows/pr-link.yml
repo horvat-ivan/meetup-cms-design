@@ -1,0 +1,29 @@
+name: PR-Link
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  link:
+    runs-on: ubuntu-latest
+    if: contains(toJson(github.event.issue.labels), '"feature:')
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Comment on parent issue
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_LABELS: ${{ join(github.event.issue.labels.*.name, ',') }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node .github/workflow-scripts/run-pr-link.mjs
